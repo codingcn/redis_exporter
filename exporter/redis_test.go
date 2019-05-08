@@ -935,8 +935,14 @@ func TestHTTPScrapeEndpoint(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(e.ScrapeHandler))
 	defer ts.Close()
 
-	u := fmt.Sprintf(ts.URL+"/?target=%s", os.Getenv("TEST_REDIS_URI"))
-	body := downloadURL(t, u)
+	v := url.Values{}
+	v.Add("target", os.Getenv("TEST_REDIS_URI"))
+	v.Add("check-single-keys", dbNumStrFull+"="+url.QueryEscape(keys[0]))
+
+	u, _ := url.Parse(ts.URL)
+	u.RawQuery = v.Encode()
+
+	body := downloadURL(t, u.String())
 
 	wants := []string{
 		// metrics
@@ -959,6 +965,9 @@ func TestHTTPScrapeEndpoint(t *testing.T) {
 		`redis_mode`,
 		`standalone`,
 		`cmd="get"`,
+
+		`test_key_size{db="db11",key="` + keys[0] + `"} 7`,
+		`test_key_value{db="db11",key="` + keys[0] + `"} 1234.56`,
 
 		`test_db_keys{db="db11"} 11`,
 		`test_db_keys_expiring{db="db11"} `,
