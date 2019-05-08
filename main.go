@@ -124,7 +124,7 @@ func main() {
 `))
 	})
 
-	log.Printf("Providing metrics at %s%s", *listenAddress, *metricPath)
-	log.Printf("Connecting to redis hosts: %#v", *redisAddr)
+	log.Infof("Providing metrics at %s%s", *listenAddress, *metricPath)
+	log.Debugf("Connecting to redis hosts: %#v", *redisAddr)
 	log.Fatal(http.ListenAndServe(*listenAddress, nil))
 }
