@@ -104,13 +104,6 @@ scrape_configs:
 ...
 ```
 
-### Run on Cloud Foundry
-
-```sh
-cf push -f contrib/manifest.yml
-```
-
-
 
 ### Flags
 
@@ -122,29 +115,21 @@ check-keys          | Comma separated list of key patterns to export value and l
 check-single-keys   | Comma separated list of keys to export value and length/size, eg: `db3=user_count` will export key `user_count` from db `3`. db defaults to `0` if omitted.  The keys specified with this flag will be looked up directly without any glob pattern matching.  Use this option if you don't need glob pattern matching;  it is faster than `check-keys`.
 script              | Path to Redis Lua script for gathering extra metrics.
 redis.addr          | Address of one or more redis nodes, comma separated, defaults to `redis://localhost:6379`.
-redis.password      | Password to use when authenticating to Redis
-redis.password-file | Path to a file containing the password to use when authenticating to Redis (note: this is mutually exclusive with `redis.password`)
-redis.alias         | Alias for redis node addr, comma separated.
-redis.file          | Path to file containing one or more redis nodes, separated by newline. This option is mutually exclusive with redis.addr. Each line can optionally be comma-separated with the fields `<addr>,<password>,<alias>`. See [here](./contrib/sample_redis_hosts_file.txt) for an example file.
 namespace           | Namespace for the metrics, defaults to `redis`.
 web.listen-address  | Address to listen on for web interface and telemetry, defaults to `0.0.0.0:9121`.
-web.telemetry-path  | Path under which to expose metrics, defaults to `metrics`.
-use-cf-bindings     | Enable usage of Cloud Foundry service bindings. Defaults to `false`
-separator           | Separator used to split redis.addr, redis.password and redis.alias into several elements. Defaults to `,`
+web.telemetry-path  | Path under which to expose metrics, defaults to `/metrics`.
 
 Redis node addresses can be tcp addresses like `redis://localhost:6379`, `redis.example.com:6379` or unix socket addresses like `unix:///tmp/redis.sock`.\
-SSL is supported by using the `rediss://` schema, for example: `rediss://azure-ssl-enabled-host.redis.cache.windows.net:6380` (note that the port is required when connecting to a non-standard 6379 port, e.g. with Azure Redis instances).
+SSL is supported by using the `rediss://` schema, for example: `rediss://azure-ssl-enabled-host.redis.cache.windows.net:6380` (note that the port is required when connecting to a non-standard 6379 port, e.g. with Azure Redis instances).\
+Password-protected instances can be accessed by using this URI format: `redis://h:<<PASSWORD>>@<<HOSTNAME>>:<<PORT>>`
 
-These settings take precedence over any configurations provided by [environment variables](#environment-variables).
+Command line settings take precedence over any configurations provided by [environment variables](#environment-variables).
 
 ### Environment Variables
 
 Name               | Description
 -------------------|------------
 REDIS_ADDR         | Address of Redis node(s)
-REDIS_PASSWORD     | Password to use when authenticating to Redis
-REDIS_ALIAS        | Alias name of Redis node(s)
-REDIS_FILE         | Path to file containing Redis node(s)
 
 ### What's exported?
 
@@ -162,8 +147,6 @@ Example [Grafana](http://grafana.org/) screenshots:\
 <img width="800" alt="redis_exporter_screen_02" src="https://cloud.githubusercontent.com/assets/1222339/19412041/dee6d7bc-92da-11e6-84f8-610c025d6182.png">
 
 Grafana dashboard is available on [grafana.net](https://grafana.net/dashboards/763) and/or [github.com](contrib/grafana_prometheus_redis_dashboard.json).
-
-Grafana dashboard with host & alias selector is available on [github.com](contrib/grafana_prometheus_redis_dashboard_alias.json).
 
 ### What else?
 
