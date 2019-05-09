@@ -47,12 +47,12 @@ type Exporter struct {
 }
 
 type Options struct {
-	Namespace              string
-	ConfigCommandName      string
-	CheckSingleKeys        string
-	CheckKeys              string
-	IncludeVerbotenMetrics bool
-	SkipTLSVerification    bool
+	Namespace                   string
+	ConfigCommandName           string
+	CheckSingleKeys             string
+	CheckKeys                   string
+	IncludeMetricTotalSysMemory bool
+	SkipTLSVerification         bool
 }
 
 var (
@@ -276,7 +276,7 @@ func NewRedisExporter(redisURI string, opts Options) (*Exporter, error) {
 	}
 	log.Debugf("singleKeys: %#v", e.singleKeys)
 
-	if opts.IncludeVerbotenMetrics {
+	if opts.IncludeMetricTotalSysMemory {
 		metricMapGauges["total_system_memory"] = "total_system_memory_bytes"
 	}
 
@@ -338,7 +338,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	defer e.Unlock()
 	e.totalScrapes.Inc()
 
-	now := time.Now().UnixNano()
+	start := time.Now().UnixNano()
 	var up float64 = 1
 	if err := e.scrapeRedisHost(ch); err != nil {
 		up = 0
@@ -348,7 +348,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	e.registerGaugeValue(ch, "up", up)
-	e.registerGaugeValue(ch, "last_scrape_duration", float64(time.Now().UnixNano()-now)/1000000000)
+	e.registerGaugeValue(ch, "last_scrape_duration", float64(time.Now().UnixNano()-start)/1000000000)
 
 	ch <- e.totalScrapes
 	ch <- e.targetScrapeDuration
