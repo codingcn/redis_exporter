@@ -338,17 +338,20 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	defer e.Unlock()
 	e.totalScrapes.Inc()
 
-	start := time.Now().UnixNano()
-	var up float64 = 1
-	if err := e.scrapeRedisHost(ch); err != nil {
-		up = 0
-		e.registerGaugeValue(ch, "scrape_error", 1.0, fmt.Sprintf("%s", err))
-	} else {
-		e.registerGaugeValue(ch, "scrape_error", 0, "")
-	}
+	if e.redisAddr != "" {
+		start := time.Now().UnixNano()
+		var up float64 = 1
+		if err := e.scrapeRedisHost(ch); err != nil {
+			up = 0
+			e.registerGaugeValue(ch, "scrape_error", 1.0, fmt.Sprintf("%s", err))
+		} else {
+			e.registerGaugeValue(ch, "scrape_error", 0, "")
+		}
 
-	e.registerGaugeValue(ch, "up", up)
-	e.registerGaugeValue(ch, "last_scrape_duration", float64(time.Now().UnixNano()-start)/1000000000)
+		e.registerGaugeValue(ch, "up", up)
+		e.registerGaugeValue(ch, "last_scrape_duration", float64(time.Now().UnixNano()-start)/1000000000)
+
+	}
 
 	ch <- e.totalScrapes
 	ch <- e.targetScrapeDuration

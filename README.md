@@ -25,14 +25,9 @@ Add a block to the `scrape_configs` of your prometheus.yml config file:
 
 ```yaml
 scrape_configs:
-
-...
-
   - job_name: redis_exporter
     static_configs:
-    - targets: ['localhost:9121']
-
-...
+    - targets: ['<<REDIS-EXPORTER-HOSTNAME>>:9121']
 ```
 
 and adjust the host name accordingly.
@@ -42,8 +37,7 @@ and adjust the host name accordingly.
 ```yaml
 
 scrape_configs:
-
-  - job_name: 'redis_exporter_1.0.0-rc.0'
+  - job_name: 'redis_exporter'
     static_configs:
       - targets:
         - redis://first-redis-host:6379
@@ -65,14 +59,18 @@ You can supply multiple targets by using `file_sd_configs` like this:
 ```yaml
 
 scrape_configs:
-
-  - job_name: 'redis_exporter_1.0.0-rc.0'
+  - job_name: 'redis_exporter'
     file_sd_configs:
       - files:
         - targets-redis-instances.json
     metrics_path: /scrape
     relabel_configs:
-...
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: <<REDIS-EXPORTER-HOSTNAME>>:9121
 ```
 
 The `targets-redis-instances.json` should look something like this:
@@ -124,7 +122,7 @@ redis_exporter container can access it:
 
 Name                | Environment Variable Name          | Description
 --------------------|------------------------------------|-----------------
-redis.addr          | REDIS_ADDR                         | Address of one or more redis nodes, comma separated, defaults to `redis://localhost:6379`.
+redis.addr          | REDIS_ADDR                         | Address of the redis , comma separated, defaults to `""`.
 debug               | REDIS_EXPORTER_DEBUG               | Verbose debug output
 log-format          | REDIS_EXPORTER_LOG_FORMAT          | Log format, valid options are `txt` (default) and `json`.
 check-keys          | REDIS_EXPORTER_CHECK_KEYS          | Comma separated list of key patterns to export value and length/size, eg: `db3=user_count` will export key `user_count` from db `3`. db defaults to `0` if omitted. The key patterns specified with this flag will be found using [SCAN](https://redis.io/commands/scan).  Use this option if you need glob pattern matching; `check-single-keys` is faster for non-pattern keys.
@@ -136,17 +134,11 @@ web.telemetry-path  | REDIS_EXPORTER_WEB_TELEMETRY_PATH  | Path under which to e
 redis-only-metrics" | REDIS_EXPORTER_REDIS_ONLY_METRICS  | Whether to also export go runtime metrics
 
 
-Redis node addresses can be tcp addresses as `redis://localhost:6379`, `redis.example.com:6379` or unix socket addresses like `unix:///tmp/redis.sock`.\
+Redis instance addresses can be tcp addresses: `redis://localhost:6379`, `redis.example.com:6379` or e.g. unix sockets: `unix:///tmp/redis.sock`.\
 SSL is supported by using the `rediss://` schema, for example: `rediss://azure-ssl-enabled-host.redis.cache.windows.net:6380` (note that the port is required when connecting to a non-standard 6379 port, e.g. with Azure Redis instances).\
 Password-protected instances can be accessed by using the URI format including a password: `redis://h:<<PASSWORD>>@<<HOSTNAME>>:<<PORT>>`
 
-Command line settings take precedence over any configurations provided by [environment variables](#environment-variables).
-
-### Environment Variables
-
-Name               | Description
--------------------|------------
-         | Address of Redis node(s)
+Command line settings take precedence over any configurations provided by the environment variables.
 
 
 
