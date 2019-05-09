@@ -48,7 +48,7 @@ func main() {
 		configCommand            = flag.String("config-command", getEnv("REDIS_EXPORTER_CONFIG_COMMAND", "CONFIG"), "What to use for the CONFIG command")
 		isDebug                  = flag.Bool("debug", getEnvBool("REDIS_EXPORTER_DEBUG"), "Output verbose debug information")
 		showVersion              = flag.Bool("version", false, "Show version information and exit")
-		redisMetricsOnly         = flag.Bool("redis-only-metrics", getEnvBool("REDIS_EXPORTER_REDIS_ONLY_METRICS"), "Whether to export go runtime metrics also")
+		redisMetricsOnly         = flag.Bool("redis-only-metrics", getEnvBool("REDIS_EXPORTER_REDIS_ONLY_METRICS"), "Whether to also export go runtime metrics")
 		inclMetricTotalSysMemory = flag.Bool("incl-metric-total-system-memory", getEnvBool("REDIS_EXPORTER_INCL_METRIC_TOTAL_SYS_MEM"), "Whether to include the redis_total_system_memory_bytes metric")
 	)
 	flag.Parse()
